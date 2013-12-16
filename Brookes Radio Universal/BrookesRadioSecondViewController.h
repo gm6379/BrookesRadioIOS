@@ -7,7 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
+#import <MessageUI/MessageUI.h>
+#import <FacebookSDK/FacebookSDK.h>
 
 @interface BrookesRadioSecondViewController : UIViewController
+
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *actionButton;
+@property (nonatomic, retain) UIActionSheet *actionSheet;
+
+-(IBAction)scheduleButtonClick:(id)sender;
+-(IBAction)getInvolvedButtonClick:(id)sender;
 
 @end
