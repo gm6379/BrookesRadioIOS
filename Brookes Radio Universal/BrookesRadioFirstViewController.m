@@ -89,7 +89,7 @@
     
     //initialises a movie player controller and the stream url for brookes radio
     //If Brookes radio isn't online use bbc.co.uk/radio/listen/live/r1.pls to test the stream
-    NSURL *streamURL = [NSURL URLWithString:@"http://s1.freeshoutcast.com:48266/listen.pls"];
+    NSURL *streamURL = [NSURL URLWithString:@"http://www.simplexstream.com/tunein/oxfordbr.pls"];
     player = [[MPMoviePlayerController alloc]initWithContentURL:streamURL];
     player.movieSourceType = MPMovieSourceTypeStreaming;
     player.view.frame = CGRectMake(55, 180, 200, 30);

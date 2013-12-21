@@ -33,11 +33,49 @@
     }
     return self;
 }
-
+UIWebView *webView;
+UIToolbar *webViewToolbar;
 -(IBAction)scheduleButtonClick:(id)sender{
-    [[UIApplication sharedApplication]
-     openURL:[NSURL URLWithString:@"http://brookesradio.com/schedule/"]];
+    webView = [[UIWebView alloc] initWithFrame: self.view.bounds];
+
+    BOOL iPad = NO;
+    #ifdef UI_USER_INTERFACE_IDIOM
+    iPad = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad);
+    #endif
+    NSURL *calURL = [NSURL URLWithString:@"https://www.google.com/calendar/embed?mode=agenda&src=9e8fb720qmpg1n7isg23nafq18%40group.calendar.google.com&color=%23BE6D00&ctz=Europe/London"];
+    CGRect screenBound = [[UIScreen mainScreen] bounds];
+    CGSize screenSize = screenBound.size;
+
+    if (iPad) {
+        calURL = [NSURL URLWithString:@"https://www.google.com/calendar/embed?mode=week&src=9e8fb720qmpg1n7isg23nafq18%40group.calendar.google.com&color=%23BE6D00&ctz=Europe/London"];
+        NSURLRequest *requestObj = [NSURLRequest requestWithURL:calURL];
+        [webView loadRequest:requestObj];
+        [self.view addSubview:webView];
+        webViewToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0,670,screenSize.width+255,44)];
+        UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:(UIBarButtonSystemItemFlexibleSpace) target:nil action:nil];
+        UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemStop target:self action:@selector(close:)];
+        [webViewToolbar setItems:[NSArray arrayWithObjects:flexibleSpace, flexibleSpace, closeButton, nil]];
+        
+        [self.view addSubview:webViewToolbar];
+    }
+    else{
+    NSURLRequest *requestObj = [NSURLRequest requestWithURL:calURL];
+    [webView loadRequest:requestObj];
+    [self.view addSubview:webView];
+        webViewToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0,screenSize.height-90,screenSize.width,44)];
+        UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:(UIBarButtonSystemItemFlexibleSpace) target:nil action:nil];
+        UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemStop target:self action:@selector(close:)];
+        [webViewToolbar setItems:[NSArray arrayWithObjects:flexibleSpace, flexibleSpace, closeButton, nil]];
+        
+        [self.view addSubview:webViewToolbar];
+    }
     
+    
+}
+
+- (IBAction)close:(id)sender {
+    [webView removeFromSuperview];
+    [webViewToolbar removeFromSuperview];
 }
 -(IBAction)openActionSheet:(id)sender{
     
