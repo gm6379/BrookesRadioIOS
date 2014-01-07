@@ -21,6 +21,8 @@
 
 @synthesize imageViews;
 @synthesize player;
+@synthesize streamButton;
+@synthesize streamingImage;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -96,7 +98,7 @@
     player.backgroundView.backgroundColor = [UIColor clearColor];
     
     UIImage *initialImage = [UIImage imageNamed:@"notStreaming.png"];
-    UIButton *streamButton = [UIButton buttonWithType: UIButtonTypeRoundedRect];
+    streamButton = [UIButton buttonWithType: UIButtonTypeRoundedRect];
     
     //creates a new image view containing the initial image
     self.imageViews = [[UIImageView alloc] initWithImage: initialImage];
@@ -139,6 +141,7 @@
     //add the stream button to the current view
     [self.view addSubview:streamButton];
     
+    
 }
 
 //tests whether there is an internet connection available
@@ -174,12 +177,12 @@
      When the stream is selected to "STOP" the streaming image then flips back to the not streaming image and the stream is stopped, the button text changes to LISTEN LIVE
      
      */
-    UIButton *streamButton = paramSender;
+    streamButton = paramSender;
     
     if([streamButton.currentTitle isEqualToString:@"LISTEN LIVE"]){
         NSLog(@"Clicked on the button");
         
-        UIImage *streamingImage = [UIImage imageNamed:@"streaming.png"];
+        streamingImage = [UIImage imageNamed:@"streaming.png"];
         
         [UIView transitionWithView:self.imageViews duration: 2.5 options:
          UIViewAnimationOptionTransitionFlipFromRight animations:^
@@ -213,10 +216,15 @@
         
         [player play];
         
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(handleMPMoviePlayerPlaybackDidFinish:)
+                                                     name:MPMoviePlayerPlaybackDidFinishNotification
+                                                   object:nil];
+        
     }
     
     else if([streamButton.currentTitle isEqualToString:@"STOP"]){
-        UIImage *streamingImage = [UIImage imageNamed:@"notStreaming.png"];
+        streamingImage = [UIImage imageNamed:@"notStreaming.png"];
         
         [UIView transitionWithView:self.imageViews duration: 2.5 options:UIViewAnimationOptionTransitionFlipFromLeft animations:^
          {completion:self.imageViews.image = streamingImage;
@@ -227,6 +235,44 @@
         
         [player stop];
     }
+   
+}
+
+- (void)handleMPMoviePlayerPlaybackDidFinish:(NSNotification *)notification
+{
+    NSDictionary *notificationUserInfo = [notification userInfo];
+    NSNumber *resultValue = [notificationUserInfo objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
+    MPMovieFinishReason reason = [resultValue intValue];
+    if (reason == MPMovieFinishReasonPlaybackError)
+    {
+        NSError *mediaPlayerError = [notificationUserInfo objectForKey:@"error"];
+        if (mediaPlayerError)
+        {
+            streamingImage = [UIImage imageNamed:@"notStreaming.png"];
+            
+            [UIView transitionWithView:self.imageViews duration: 2.5 options:UIViewAnimationOptionTransitionFlipFromLeft animations:^
+             {completion:self.imageViews.image = streamingImage;
+             }completion:nil];
+            
+            [streamButton setTitle: @"LISTEN LIVE" forState:UIControlStateNormal];
+            [streamButton setTitleColor:([UIColor colorWithRed:50.0/255.0 green:79.0/255.0 blue:133.0/255.0 alpha:1]) forState:(UIControlStateNormal)];
+            UIAlertView *alertView = [[UIAlertView alloc]
+                                      initWithTitle:@"Connection Error"
+                                      message:@"Brookes Radio isn't online right now, check the schedule for more details." delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+            [alertView show];
+            
+            NSLog(@"playback failed with error description: %@", [mediaPlayerError localizedDescription]);
+            [player stop];
+        }
+        else
+        {
+            NSLog(@"playback failed without any given reason");
+        }
+    }
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:MPMoviePlayerPlaybackDidFinishNotification
+                                                  object:nil];
+
 }
 
 -(void)facebookShare
