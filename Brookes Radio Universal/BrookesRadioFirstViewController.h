@@ -25,9 +25,6 @@
 @property (nonatomic, retain) MPMoviePlayerController *player;
 @property (strong, nonatomic) UIButton *streamButton;
 @property (strong, nonatomic) UIImage *streamingImage;
-//@property (nonatomic, retain) IBOutlet UIBarButtonItem *actionButton;
-//@property (nonatomic, retain) UIActionSheet *actionSheet;
-//@property(nonatomic, readonly, getter=isVisible) BOOL visible;
 
 -(IBAction)openActionSheet:(id)sender;
 
